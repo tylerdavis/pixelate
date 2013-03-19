@@ -5,17 +5,16 @@ var Pixelate = function (imagePath, output, options) {
   options = options || {};
 
   // Set options
-  var pixelDensity = options.pixelDensity || 130;
-  var pixelStyle = options.pixelStyle || 'square';
-  var pixelBorder = options.pixelBorder || 'none';
-  
-  var image
+  var start = Math.round(pixelDensity / 2) // @TODO - Pretty sure this can be set to 1 every time.  Need testing.
+    , inc = Math.round(image.height / pixelDensity)
+    , pixelDensity = options.pixelDensity || 130 // @TODO - Should probably limit this to a reasonable range
+    , pixelStyle = options.pixelStyle || 'square' // @TODO - Square or circle
+    , pixelBorder = options.pixelBorder || 'none' // @TODO - add border options
+    , image
     , canvas
     , context
     , imgData
     , getRGB
-    , start
-    , inc
     , wrapper
     , container;
 
@@ -39,9 +38,6 @@ var Pixelate = function (imagePath, output, options) {
       imgData = context.getImageData(0, 0, image.width, image.height).data;
       // Get image pixel data and build an array with it
       getRGB = function(i) { return [imgData[i], imgData[i + 1], imgData[i + 2]]; };
-      // Iteration convenience shit
-      start = Math.round(pixelDensity / 2);
-      inc = Math.round(image.height / pixelDensity);
     }
     image.src = imagePath;
   }
@@ -52,7 +48,7 @@ var Pixelate = function (imagePath, output, options) {
 
   function changeBlockSize (blockSize) {
     blocks = document.getElementsByClassName('block');
-    for (var i = blocks.length - 1; i >= 0; i--) {
+    for (var i = 0, imax = blocks.length; i < imax; i++) {
       block = blocks[i]
       block.style.width = blockSize;
       block.style.height = blockSize;
@@ -63,7 +59,7 @@ var Pixelate = function (imagePath, output, options) {
     // body...
   }
 
-  function render () {
+  function renderFrame () {
     for (var i = start, imax = image.height; i < imax; i += inc) {
       var row = document.createElement('div');
       row.className = 'row';
@@ -95,10 +91,8 @@ var Pixelate = function (imagePath, output, options) {
       changeBlockSize(size);
     },
 
-    render : function () {
-      render();
+    renderFrame : function () {
+      renderFrame();
     }
-
   }
-
 }
